@@ -75,6 +75,12 @@ public abstract class AddVertexTest extends AbstractGremlinTest {
 
     public abstract Traversal<Vertex, Map<Object, Object>> get_g_V_asXaX_hasXname_markoX_outXcreatedX_asXbX_addVXselectXaX_labelX_propertyXtest_selectXbX_labelX_valueMapXtrueX();
 
+    public abstract Traversal<Vertex, Map<Object, Object>> get_g_addV_propertyXsingle_id_1X_valueMapXtrueX();
+
+    public abstract Traversal<Vertex, Map<Object, Object>> get_g_addV_propertyXid_1X_propertyXsingle_k_vX_valueMapXtrueX();
+
+    public abstract Traversal<Vertex, Map<Object, Object>> get_g_addV_propertyXsingle_k_vX_propertyXid_1X_valueMapXtrueX();
+
     @Test
     @LoadGraphWith(MODERN)
     @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_ADD_VERTICES)
@@ -189,9 +195,8 @@ public abstract class AddVertexTest extends AbstractGremlinTest {
         assertFalse(traversal.hasNext());
         assertEquals("animal", mateo.label());
         assertEquals(3, IteratorUtils.count(mateo.properties("name")));
-        mateo.values("name").forEachRemaining(name -> {
-            assertTrue(name.equals("mateo") || name.equals("cateo") || name.equals("gateo"));
-        });
+        mateo.values("name").forEachRemaining(name ->
+                assertTrue(name.equals("mateo") || name.equals("cateo") || name.equals("gateo")));
         assertEquals(5, ((Integer) mateo.value("age")).intValue());
     }
 
@@ -207,7 +212,7 @@ public abstract class AddVertexTest extends AbstractGremlinTest {
             final Vertex vertex = traversal.next();
             assertEquals("animal", vertex.label());
             assertEquals(2, IteratorUtils.count(vertex.properties("name")));
-            List<String> names = IteratorUtils.asList(vertex.values("name"));
+            List names = IteratorUtils.asList(vertex.values("name"));
             assertEquals(2, names.size());
             assertTrue(names.contains("an animal"));
             assertTrue(names.contains("marko") || names.contains("vadas") || names.contains("josh") || names.contains("lop") || names.contains("ripple") || names.contains("peter"));
@@ -296,6 +301,49 @@ public abstract class AddVertexTest extends AbstractGremlinTest {
         assertEquals(3, map.size());
     }
 
+    @Test
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_ADD_VERTICES)
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_CUSTOM_IDS)
+    public void g_addV_propertyXsingle_id_1X_valueMapXtrueX() {
+        final Traversal<Vertex, Map<Object,Object>> traversal = get_g_addV_propertyXsingle_id_1X_valueMapXtrueX();
+        printTraversalForm(traversal);
+        final Map<Object,Object> map = traversal.next();
+        assertFalse(traversal.hasNext());
+        assertEquals(1, map.get(T.id));
+        assertTrue(map.containsKey(T.label));
+        assertEquals(2, map.size());
+    }
+
+    @Test
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_ADD_VERTICES)
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_ADD_PROPERTY)
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_CUSTOM_IDS)
+    public void g_addV_propertyXid_1X_propertyXsingle_k_vX_valueMapXtrueX() {
+        final Traversal<Vertex, Map<Object,Object>> traversal = get_g_addV_propertyXid_1X_propertyXsingle_k_vX_valueMapXtrueX();
+        printTraversalForm(traversal);
+        final Map<Object,Object> map = traversal.next();
+        assertFalse(traversal.hasNext());
+        assertEquals(1, map.get(T.id));
+        assertEquals("v", ((List) map.get("k")).get(0));
+        assertTrue(map.containsKey(T.label));
+        assertEquals(3, map.size());
+    }
+
+    @Test
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_ADD_VERTICES)
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_ADD_PROPERTY)
+    @FeatureRequirement(featureClass = Graph.Features.VertexFeatures.class, feature = Graph.Features.VertexFeatures.FEATURE_CUSTOM_IDS)
+    public void g_addV_propertyXsingle_k_vX_propertyXid_1X_valueMapXtrueX() {
+        final Traversal<Vertex, Map<Object,Object>> traversal = get_g_addV_propertyXsingle_k_vX_propertyXid_1X_valueMapXtrueX();
+        printTraversalForm(traversal);
+        final Map<Object,Object> map = traversal.next();
+        assertFalse(traversal.hasNext());
+        assertEquals(1, map.get(T.id));
+        assertEquals("v", ((List) map.get("k")).get(0));
+        assertTrue(map.containsKey(T.label));
+        assertEquals(3, map.size());
+    }
+
     public static class Traversals extends AddVertexTest {
 
         @Override
@@ -361,6 +409,21 @@ public abstract class AddVertexTest extends AbstractGremlinTest {
         @Override
         public Traversal<Vertex, Map<Object, Object>> get_g_V_asXaX_hasXname_markoX_outXcreatedX_asXbX_addVXselectXaX_labelX_propertyXtest_selectXbX_labelX_valueMapXtrueX() {
             return g.V().as("a").has("name", "marko").out("created").as("b").addV(select("a").label()).property("test", select("b").label()).valueMap(true);
+        }
+
+        @Override
+        public Traversal<Vertex, Map<Object, Object>> get_g_addV_propertyXsingle_id_1X_valueMapXtrueX() {
+            return g.addV().property(VertexProperty.Cardinality.single, T.id, 1).valueMap(true);
+        }
+
+        @Override
+        public Traversal<Vertex, Map<Object, Object>> get_g_addV_propertyXid_1X_propertyXsingle_k_vX_valueMapXtrueX() {
+            return g.addV().property(T.id, 1).property(VertexProperty.Cardinality.single, "k", "v").valueMap(true);
+        }
+
+        @Override
+        public Traversal<Vertex, Map<Object, Object>> get_g_addV_propertyXsingle_k_vX_propertyXid_1X_valueMapXtrueX() {
+            return g.addV().property(VertexProperty.Cardinality.single, "k", "v").property(T.id, 1).valueMap(true);
         }
     }
 }

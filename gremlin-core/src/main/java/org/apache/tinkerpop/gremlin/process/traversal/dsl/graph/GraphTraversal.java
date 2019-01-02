@@ -2081,9 +2081,12 @@ public interface GraphTraversal<S, E> extends Traversal<S, E> {
 
         // if it can be detected that this call to property() is related to an addV/E() then we can attempt to fold
         // the properties into that step to gain an optimization for those graphs that support such capabilities.
-        final Step endStep = this.asAdmin().getEndStep();
+        Step endStep = this.asAdmin().getEndStep();
+        while (endStep instanceof AddPropertyStep) {
+            endStep = endStep.getPreviousStep();
+        }
         if ((endStep instanceof AddVertexStep || endStep instanceof AddEdgeStep || endStep instanceof AddVertexStartStep || endStep instanceof AddEdgeStartStep) &&
-                keyValues.length == 0 && null == cardinality) {
+                keyValues.length == 0 && (null == cardinality || (VertexProperty.Cardinality.single.equals(cardinality) && key instanceof T))) {
             ((Mutating) endStep).addPropertyMutations(key, value);
         } else {
             this.asAdmin().addStep(new AddPropertyStep(this.asAdmin(), cardinality, key, value));

@@ -122,91 +122,16 @@ public class TinkerGraphPlayTest {
     @Ignore
     public void testPlayDK() throws Exception {
 
-        final Map<String, String> aliases = new HashMap<>();
-        aliases.put("marko","okram");
-        final GraphTraversalSource g = TinkerFactory.createModern().traversal();
-        /*g.withSideEffect("a", aliases).V().hasLabel("person").
-                values("name").as("n").
-                optional(select("a").select(select("n"))).
-                forEachRemaining(System.out::println);*/
+        final GraphTraversalSource g = TinkerGraph.open().traversal();
 
-        // shortest path lengths (by summed weight)
-        g.withSack(0.0).V().has("person", "name", "marko").
-                repeat(__.bothE().
-                        sack(sum).
-                            by("weight").
-                        otherV().
-                        group("m").
-                            by().
-                            by(sack().min()).as("x").
-                        // where(P.eq("m")).by(sack()).by(select(select("x"))). // could be that easy, but "x" is unknown here
-                        filter(project("s","x").
-                                    by(sack()).
-                                    by(select("m").select(select("x"))).
-                                where("s", P.eq("x"))).
-                        group("p").
-                            by().
-                            by(project("path","length").
-                                    by(path().by("name").by("weight")).
-                                    by(sack()))
-                        ).
-                cap("p").unfold().
-                group().
-                    by(select(Column.keys).values("name")).
-                    by(Column.values).next().entrySet().
-                forEach(System.out::println);
+        g.addV().property(VertexProperty.Cardinality.single, T.id , "1").iterate();
+        g.addV().property(VertexProperty.Cardinality.single, "id", "1").iterate();
+        g.addV().property("id", "1").iterate();
 
-        System.out.println("---");
-
-        // longest path lengths (by summed weight)
-        g.withSack(0.0).V().has("person", "name", "marko").
-                repeat(__.bothE().simplePath().
-                        sack(sum).
-                          by("weight").
-                        otherV().
-                        group("m").
-                            by().
-                            by(sack().max()).as("x").
-                        filter(project("s","x").
-                                by(sack()).
-                                by(select("m").select(select("x"))).
-                                where("s", P.eq("x"))).
-                        group("p").
-                                by().
-                                by(project("path","length").
-                                        by(path().by("name").by("weight")).
-                                        by(sack()))
-                        ).
-                cap("p").unfold().
-                group().
-                    by(select(Column.keys).values("name")).
-                    by(Column.values).next().entrySet().
-                forEach(System.out::println);
-
-        System.out.println("---");
-
-        // all shortest paths (by summed weight)
-        g.withSack(0.0).V().as("a").
-                repeat(__.bothE().
-                        sack(sum).
-                            by("weight").
-                        otherV().as("b").
-                        group("m").
-                            by(select("a","b").by("name")).
-                            by(sack().min()).
-                        filter(project("s","x").
-                                by(sack()).
-                                by(select("m").select(select("a", "b").by("name"))).
-                               where("s", P.eq("x"))).
-                        group("p").
-                            by(select("a","b").by("name")).
-                            by(map(union(path().by("name").by("weight"), sack()).fold()))
-                ).
-                cap("p").unfold().
-                order().
-                    by(select(Column.keys).select("a")).
-                    by(select(Column.keys).select("b")).
-                forEachRemaining(System.out::println);
+        g.addV().property(T.id , "id1").property(VertexProperty.Cardinality.single, "k", "v")
+                .forEachRemaining(System.out::println);
+        g.addV().property(VertexProperty.Cardinality.single, "k", "v").property(T.id , "id2")
+                .forEachRemaining(System.out::println);
     }
 
     @Test

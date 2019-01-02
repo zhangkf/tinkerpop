@@ -387,3 +387,38 @@ Feature: Step - addV()
       | result |
       | name |
 
+  Scenario: g_addV_propertyXsingle_id_1X_valueMapXtrueX
+    Given the empty graph
+    And using the parameter vid defined as "d[1].l"
+    And the traversal of
+      """
+      g.addV().property(Cardinality.single, T.id, vid).id()
+      """
+    When iterated to list
+    Then the result should be unordered
+      | result |
+      | "d[1].l" |
+
+  Scenario: g_addV_propertyXid_1X_propertyXsingle_k_vX_valueMapXtrueX
+    Given the empty graph
+    And using the parameter vid defined as "d[1].l"
+    And the traversal of
+      """
+      g.addV().property(T.id, vid).property(Cardinality.single, "k", "v").valueMap(true)
+      """
+    When iterated to list
+    Then the result should be unordered
+      | result |
+      | m[{"t[id]": "d[1].l", "t[label]": "vertex", "k": ["v"]}] |
+
+  Scenario: g_addV_propertyXsingle_k_vX_propertyXid_1X_valueMapXtrueX
+    Given the empty graph
+    And using the parameter vid defined as "d[1].l"
+    And the traversal of
+      """
+      g.addV().property(Cardinality.single, "k", "v").property(T.id, vid).valueMap(true)
+      """
+    When iterated to list
+    Then the result should be unordered
+      | result |
+      | m[{"t[id]": "d[1].l", "t[label]": "vertex", "k": ["v"]}] |
