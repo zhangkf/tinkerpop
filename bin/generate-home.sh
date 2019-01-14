@@ -32,6 +32,8 @@ else
   rm -rf target/site/home/template
 fi
 
+bin/generate-contributors.sh
+
 pushd docs/site/
 
 for filename in home/*.html; do
