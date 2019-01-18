@@ -24,6 +24,10 @@ image::https://raw.githubusercontent.com/apache/tinkerpop/master/docs/static/ima
 === TinkerPop 3.3.6 (Release Date: NOT OFFICIALLY RELEASED YET)
 
 * Masked sensitive configuration options in the logs of `KryoShimServiceLoader`.
+* Introduced `WebSocketChannelizerV2` which fixes a bug with multithreaded use of the same `Client` object.
+* Deprecated `WebSocketChannelizer` and renamed to `WebSocketChannelizerV1`.
+* Deprecated `NioChannelizer` for both the client and server as it is not particularly used.
+* Fixed bug in configuration of `Channelizer` for the `Cluster` Java driver object.
 * Fixed a concurrency issue in `TraverserSet`
 * Fixed a bug in `InlineFilterStrategy` that mixed up and's and or's when folding merging conditions together.
 
