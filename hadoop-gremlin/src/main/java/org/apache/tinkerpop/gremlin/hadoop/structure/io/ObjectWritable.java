@@ -30,13 +30,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ConcurrentModificationException;
+import java.util.Objects;
 
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
  */
 public final class ObjectWritable<T> implements WritableComparable<ObjectWritable>, Serializable {
 
-    private static final String NULL = "null";
     private static final ObjectWritable<MapReduce.NullObject> NULL_OBJECT_WRITABLE = new ObjectWritable<>(MapReduce.NullObject.instance());
 
     T t;
@@ -45,7 +46,7 @@ public final class ObjectWritable<T> implements WritableComparable<ObjectWritabl
     }
 
     public ObjectWritable(final T t) {
-        this.t = t;
+        this.set(t);
     }
 
     public T get() {
@@ -58,7 +59,15 @@ public final class ObjectWritable<T> implements WritableComparable<ObjectWritabl
 
     @Override
     public String toString() {
-        return null == this.t ? NULL : this.t.toString();
+        // Spark's background logging apparently tries to log a `toString()` of certain objects while they're being
+        // modified, which then throws a ConcurrentModificationException. We probably can't make any arbitrary object
+        // thread-safe, but we can easily retry on such cases and eventually we should always get a result.
+        while (true) {
+            try {
+                return Objects.toString(this.t);
+            }
+            catch (ConcurrentModificationException ignored) { }
+        }
     }
 
     @Override
