@@ -24,7 +24,7 @@ image::https://raw.githubusercontent.com/apache/tinkerpop/master/docs/static/ima
 === TinkerPop 3.3.6 (Release Date: NOT OFFICIALLY RELEASED YET)
 
 * Masked sensitive configuration options in the logs of `KryoShimServiceLoader`.
-* Fixed concurrency issues in `TraverserSet::toString()` and `ObjectWritable::toString()`.
+* Fixed concurrency issues in `TraverserSet.toString()` and `ObjectWritable.toString()`.
 * Fixed a bug in `InlineFilterStrategy` that mixed up and's and or's when folding merging conditions together.
 
 [[release-3-3-5]]
